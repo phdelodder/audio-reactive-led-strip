@@ -11,19 +11,20 @@ enum PLAYMODE {MODE_SCROLL, MODE_ENERGY, MODE_SPECTRUM};
 class MusicLeds{
     private:
         //N_PIXELS: The number of the LEDS on the led strip, must be even.
-        static const uint16_t N_PIXELS = 60;
+        static const uint16_t N_PIXELS = 256;
         //MIN_VOLUME_THRESHOLD: If the audio's volume is less than this number, the signal will not be processed.
         static constexpr float MIN_VOLUME_THRESHOLD = 0.0003;
         //Microphone(type of PDM)'s WS Pin and DATA_IN Pin, connecting to GPIO
-        static const int PDM_WS_IO_PIN = 19;
-        static const int PDM_DATA_IN_PIN = 22;
+        static const int CK_IO_PIN = 19;
+        static const int WS_IO_PIN = 18;
+        static const int DATA_IN_PIN = 21;
 
         static const uint16_t BUFFER_SIZE = 512; 
         static const uint8_t N_ROLLING_HISTORY = 2;
-        static const uint16_t SAMPLE_RATE = 16000;
+        static const uint16_t SAMPLE_RATE = 44100;
         static const uint16_t N_MEL_BIN = 18;
         static constexpr float MIN_FREQUENCY = 200;
-        static constexpr float MAX_FREQUENCY = 8000;
+        static constexpr float MAX_FREQUENCY = 12000;
 
         float y_data[BUFFER_SIZE * N_ROLLING_HISTORY];
         class FFT *fft;
@@ -33,7 +34,7 @@ class MusicLeds{
 
         i2s_port_t i2s_num = I2S_NUM_0; // i2s port number
         i2s_config_t i2s_config = {
-          .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX | I2S_MODE_PDM),
+          .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
           .sample_rate = SAMPLE_RATE,
           .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
           .channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT,
@@ -45,11 +46,10 @@ class MusicLeds{
         };
 
         i2s_pin_config_t pin_config = {
-          //.bck_io_num = 18,
-          .bck_io_num = -1,
-          .ws_io_num = PDM_WS_IO_PIN,
+          .bck_io_num = CK_IO_PIN,
+          .ws_io_num = WS_IO_PIN,
           .data_out_num = -1,
-          .data_in_num = PDM_DATA_IN_PIN
+          .data_in_num = DATA_IN_PIN
         };
 
         PLAYMODE CurrentMode = MODE_SCROLL;
